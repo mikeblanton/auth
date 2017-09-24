@@ -1,27 +1,31 @@
 import React, { Component } from 'react';
 import { Text } from 'react-native';
-import firebase from 'firebase';
+import {
+  Config,
+  CognitoIdentityCredentials
+} from 'aws-sdk/dist/aws-sdk-react-native';
+import {
+  AuthenticationDetails,
+  CognitoUser,
+  CognitoUserPool,
+  CognitoUserAttribute
+} from '../lib/aws-cognito-identity';
+// or react-native-aws-cognito-js
 import { Button, Card, CardSection, FormInput, Spinner, FormTextInput } from './common';
+
+const appConfig = {
+  region: 'us-east-1',
+  IdentityPoolId: 'us-east-1:30e72695-e7b0-4074-a336-5dfde967947c',
+  UserPoolId: 'us-east-1_gVQhmP5oF',
+  ClientId: '4fnpe8gfohbksqq6oc7fgtorgj',
+};
+
+//setting config
+Config.region = appConfig.region;
 
 class LoginForm extends Component {
   // State initialization (email, password, error, loading)
   state = { email: '', password: '', error: '', loading: false };
-
-  onButtonPress() {
-    const { email, password } = this.state;
-
-    // Show the spinner
-    this.setState({ error: '', loading: true });
-
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(this.onLoginSuccess.bind(this))
-      .catch(() => {
-        // Failed to sign in, create an account
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-          .then(this.onLoginSuccess.bind(this))
-          .catch(this.onLoginFail.bind(this));
-      });
-  }
 
   onLoginSuccess() {
     this.setState({
@@ -36,6 +40,62 @@ class LoginForm extends Component {
     this.setState({
       loading: false,
       error: 'Authentication failed.'
+    });
+  }
+
+  onButtonPress() {
+    console.log('Authenticating user');
+    const { email, password } = this.state;
+
+    // Show the spinner
+    this.setState({ error: '', loading: true });
+
+    const authenticationData = {
+      Username: email,
+      Password: password,
+    };
+    const authenticationDetails = new AuthenticationDetails(authenticationData);
+    const poolData = {
+      UserPoolId: appConfig.UserPoolId,
+      ClientId: appConfig.ClientId
+    };
+    const userPool = new CognitoUserPool(poolData);
+    const userData = {
+      Username: email,
+      Pool: userPool
+    };
+    const cognitoUser = new CognitoUser(userData);
+    console.log('Attempting to sign in');
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: (result) => {
+        console.log(`access token ${result.getAccessToken().getJwtToken()}`);
+        this.onLoginSuccess();
+      },
+      onFailure: (err) => {
+        console.log('Sign in failed, attempting to create account');
+        console.log(err);
+        const attributeList = [
+          new CognitoUserAttribute({ Name: 'email', Value: email })
+        ];
+        userPool.signUp(
+          email,
+          password,
+          attributeList,
+          null,
+          (err1, result) => {
+            if (err1) {
+              console.log('Account creating failed');
+              console.log(err1);
+              this.onLoginFail();
+              return;
+            }
+            console.log('Account creating success');
+            console.log(result);
+            this.onLoginSuccess();
+          }
+        );
+        this.onLoginFail();
+      },
     });
   }
 
