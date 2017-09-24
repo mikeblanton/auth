@@ -7,10 +7,12 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"aws-sdk": "^2.122.0",
 		"eslint-config-rallycoding": "^3.2.0",
 		"firebase": "^4.3.1",
 		"react": "16.0.0-alpha.12",
-		"react-native": "0.48.3"
+		"react-native": "0.48.3",
+		"react-native-aws-cognito-js": "0.0.7"
 	},
 	"devDependencies": {
 		"babel-jest": "21.0.2",

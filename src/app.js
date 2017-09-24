@@ -8,22 +8,7 @@ class App extends Component {
   state = { authenticated: null };
 
   componentWillMount() {
-    console.log('componentWillMount: Initializing firebase');
-    firebase.initializeApp({
-      apiKey: 'AIzaSyCQFsfp_0Fz3wlrRTtCzpDeincicXAO60s',
-      authDomain: 'auth-8919d.firebaseapp.com',
-      databaseURL: 'https://auth-8919d.firebaseio.com',
-      projectId: 'auth-8919d',
-      storageBucket: 'auth-8919d.appspot.com',
-      messagingSenderId: '674993967952'
-    });
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.setState({ authenticated: true });
-      } else {
-        this.setState({ authenticated: false });
-      }
-    });
+    this.setState({ authenticated: false });
   }
 
   // Make the spinner centered on the screen
