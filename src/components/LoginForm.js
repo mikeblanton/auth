@@ -94,7 +94,6 @@ class LoginForm extends Component {
             this.onLoginSuccess();
           }
         );
-        this.onLoginFail();
       },
     });
   }
