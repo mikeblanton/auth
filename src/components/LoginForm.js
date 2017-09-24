@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { Text } from 'react-native';
 import firebase from 'firebase';
-import { Button, Card, CardSection, Input, Spinner } from './common';
+import { Button, Card, CardSection, FormInput, Spinner, FormTextInput } from './common';
 
-// TODO: Refactor Input to accept a child component that represents the actual
-//         input, call it FormInput
-// TODO: Use email keyboard type (using the '||' code)
-// TODO: Can we use an initState function?
 class LoginForm extends Component {
   // State initialization (email, password, error, loading)
   state = { email: '', password: '', error: '', loading: false };
@@ -59,22 +55,30 @@ class LoginForm extends Component {
     return (
       <Card>
         <CardSection>
-          <Input
-            label="Email"
-            placeholder="user@gmail.com"
-            value={this.state.email}
-            onChangeText={email => this.setState({ email })}
-          />
+          <FormInput label="Email">
+            <FormTextInput
+              placeholder="user@gmail.com"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              returnKeyType="next"
+              value={this.state.email}
+              onChangeText={email => this.setState({ email })}
+            />
+          </FormInput>
         </CardSection>
 
         <CardSection>
-          <Input
-            secureTextEntry
+          <FormInput
             label="Password"
-            placeholder="password"
-            value={this.state.password}
-            onChangeText={password => this.setState({ password })}
-          />
+          >
+            <FormTextInput
+              secureTextEntry
+              placeholder="password"
+              value={this.state.password}
+              onChangeText={password => this.setState({ password })}
+            />
+          </FormInput>
         </CardSection>
 
         <Text style={styles.errorTextStyle}>
